@@ -1,54 +1,42 @@
+name: Build Android APK
 
-Skip to content
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-    ahmedshawar998-svg
-    ahmedshawar
+jobs:
+  build:
+    runs-on: ubuntu-latest   # ← الإصلاح هنا (بدل 20.04)
 
-Repository navigation
+    steps:
+      # سحب الكود
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    Code
-    Issues
-    Pull requests
-    Actions
-    Projects
-    Wiki
-    Security
-    Insights
-    Settings
+      # تثبيت Java (مهم جدًا للأندرويد)
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
-Actions: ahmedshawar998-svg/ahmedshawar
-Actions
+      # تثبيت Android SDK
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-    Management
+      # إعطاء صلاحية للـ gradlew
+      - name: Grant execute permission
+        run: chmod +x gradlew
 
-All workflows
-Showing runs from all workflows
-3 workflow runs
-Update Android build workflow for latest dependencies
-Build Android APK #3: Commit 87e9c62 pushed by ahmedshawar998-svg
-main
-1 minute ago
-In progress
-Build Android APK
-Build Android APK #2: Manually run by ahmedshawar998-svg
-main
-1 minute ago
-Queued
-Add GitHub Actions workflow for building Android APK
-Build Android APK #1: Commit e7cd1ad pushed by ahmedshawar998-svg
-main
-4 minutes ago
-Queued
-Footer
-© 2026 GitHub, Inc.
-Footer navigation
+      # بناء نسخة Release
+      - name: Build APK
+        run: ./gradlew assembleRelease
 
-    Terms
-    Privacy
-    Security
-    Status
-    Community
-    Docs
-    Contact
-
-Workflow runs · ahmedshawar998-svg/ahmedshawar
+      # رفع الـ APK كـ Artifact للتحميل
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: app/build/outputs/apk/release/*.apk
